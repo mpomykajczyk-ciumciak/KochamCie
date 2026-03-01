@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+
+<html lang="pl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Dopasowanie ❤️</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink: #ff4b7d;
+    --dark-pink: #e0365f;
+    --gold: #f7c948;
+    --bg: #1a0a12;
+    --card-bg: #2a1020;
+  }
+
+- { margin:0; padding:0; box-sizing:border-box; touch-action:none; }
+
+body {
+background: var(–bg);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+font-family: ‘Lato’, sans-serif;
+overflow: hidden;
+background-image: radial-gradient(ellipse at 20% 50%, rgba(255,75,125,0.08) 0%, transparent 60%),
+radial-gradient(ellipse at 80% 20%, rgba(247,201,72,0.05) 0%, transparent 50%);
+}
+
+h1 {
+font-family: ‘Playfair Display’, serif;
+color: rgba(255,255,255,0.15);
+font-size: 0.85rem;
+letter-spacing: 6px;
+text-transform: uppercase;
+margin-bottom: 30px;
+}
+
+/* CARD AREA */
+.card-area {
+position: relative;
+width: 320px;
+height: 460px;
+}
+
+.card {
+position: absolute;
+width: 320px;
+height: 460px;
+border-radius: 20px;
+overflow: hidden;
+cursor: grab;
+user-select: none;
+box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,75,125,0.2);
+transition: box-shadow 0.2s;
+background: var(–card-bg);
+}
+
+.card:active { cursor: grabbing; }
+
+/* PHOTO PLACEHOLDER - podmień src na swoje zdjęcie */
+.card-photo {
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+pointer-events: none;
+}
+
+.card-photo-placeholder {
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: linear-gradient(135deg, #2a1020, #3d1530);
+color: rgba(255,255,255,0.3);
+font-size: 5rem;
+gap: 15px;
+}
+
+.card-photo-placeholder span {
+font-size: 0.9rem;
+letter-spacing: 2px;
+text-transform: uppercase;
+font-family: ‘Lato’, sans-serif;
+}
+
+.card-info {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+padding: 30px 25px 25px;
+background: linear-gradient(transparent, rgba(0,0,0,0.85));
+}
+
+.card-name {
+font-family: ‘Playfair Display’, serif;
+font-size: 1.8rem;
+color: white;
+display: block;
+}
+
+.card-age {
+font-size: 0.85rem;
+color: rgba(255,255,255,0.6);
+letter-spacing: 2px;
+margin-top: 4px;
+display: block;
+}
+
+/* STAMP OVERLAYS */
+.stamp {
+position: absolute;
+top: 40px;
+padding: 8px 20px;
+border-radius: 8px;
+font-family: ‘Playfair Display’, serif;
+font-size: 1.8rem;
+font-weight: 700;
+letter-spacing: 3px;
+opacity: 0;
+pointer-events: none;
+transform: rotate(-15deg);
+transition: opacity 0.1s;
+}
+
+.stamp-like {
+left: 20px;
+border: 4px solid #4dff91;
+color: #4dff91;
+transform: rotate(-15deg);
+text-shadow: 0 0 20px rgba(77,255,145,0.5);
+}
+
+.stamp-nope {
+right: 20px;
+border: 4px solid #ff4b4b;
+color: #ff4b4b;
+transform: rotate(15deg);
+text-shadow: 0 0 20px rgba(255,75,75,0.5);
+}
+
+/* BUTTONS */
+.buttons {
+display: flex;
+gap: 25px;
+margin-top: 30px;
+align-items: center;
+}
+
+.btn {
+width: 65px;
+height: 65px;
+border-radius: 50%;
+border: none;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.6rem;
+cursor: pointer;
+transition: transform 0.15s, box-shadow 0.15s;
+box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.btn:hover { transform: scale(1.1); }
+.btn:active { transform: scale(0.95); }
+
+.btn-nope {
+background: #1e0e18;
+border: 2px solid rgba(255,75,75,0.4);
+}
+
+.btn-like {
+background: linear-gradient(135deg, var(–pink), var(–dark-pink));
+width: 80px;
+height: 80px;
+font-size: 2rem;
+box-shadow: 0 8px 30px rgba(255,75,125,0.5);
+}
+
+/* WALKA - komunikaty */
+.fight-msg {
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
+background: rgba(26, 10, 18, 0.95);
+border: 2px solid var(–pink);
+border-radius: 16px;
+padding: 20px 30px;
+font-family: ‘Playfair Display’, serif;
+font-size: 1.2rem;
+color: white;
+text-align: center;
+z-index: 100;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.2s;
+box-shadow: 0 0 40px rgba(255,75,125,0.3);
+max-width: 280px;
+}
+
+.fight-msg.show {
+opacity: 1;
+}
+
+/* MATCH SCREEN */
+.match-screen {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+background: rgba(10,0,8,0.97);
+z-index: 200;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+opacity: 0;
+pointer-events: none;
+transition: opacity 0.5s;
+}
+
+.match-screen.show {
+opacity: 1;
+pointer-events: all;
+}
+
+.match-title {
+font-family: ‘Playfair Display’, serif;
+font-size: 3rem;
+background: linear-gradient(135deg, var(–pink), var(–gold));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+margin-bottom: 10px;
+animation: matchPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+opacity: 0;
+}
+
+.match-sub {
+color: rgba(255,255,255,0.6);
+font-size: 0.9rem;
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-bottom: 40px;
+animation: matchPop 0.6s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+opacity: 0;
+}
+
+.match-photos {
+display: flex;
+gap: 15px;
+margin-bottom: 30px;
+animation: matchPop 0.6s 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+opacity: 0;
+}
+
+.match-photo {
+width: 110px;
+height: 110px;
+border-radius: 50%;
+object-fit: cover;
+border: 3px solid var(–pink);
+box-shadow: 0 0 30px rgba(255,75,125,0.5);
+background: linear-gradient(135deg, #2a1020, #3d1530);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 2.5rem;
+}
+
+.match-heart {
+font-size: 2rem;
+align-self: center;
+animation: heartBeat 0.8s 0.5s ease-in-out infinite;
+}
+
+.match-text {
+color: rgba(255,255,255,0.7);
+text-align: center;
+font-size: 0.95rem;
+line-height: 1.7;
+max-width: 260px;
+animation: matchPop 0.6s 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+opacity: 0;
+margin-bottom: 40px;
+}
+
+.match-btn {
+background: linear-gradient(135deg, var(–pink), var(–dark-pink));
+color: white;
+border: none;
+padding: 15px 40px;
+border-radius: 50px;
+font-family: ‘Playfair Display’, serif;
+font-size: 1.1rem;
+cursor: pointer;
+box-shadow: 0 8px 30px rgba(255,75,125,0.4);
+animation: matchPop 0.6s 0.65s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+opacity: 0;
+transition: transform 0.15s;
+}
+
+.match-btn:hover { transform: scale(1.05); }
+
+/* CONFETTI serduszka */
+.confetti-container {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+z-index: 201;
+}
+
+.conf {
+position: absolute;
+font-size: 1.5rem;
+animation: confettiFall linear forwards;
+opacity: 0;
+}
+
+@keyframes confettiFall {
+0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes matchPop {
+from { opacity: 0; transform: scale(0.7) translateY(20px); }
+to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes heartBeat {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.3); }
+}
+
+@keyframes shake {
+0%, 100% { transform: translateX(0) rotate(0deg); }
+15% { transform: translateX(-12px) rotate(-3deg); }
+30% { transform: translateX(10px) rotate(2deg); }
+45% { transform: translateX(-8px) rotate(-2deg); }
+60% { transform: translateX(6px) rotate(1deg); }
+75% { transform: translateX(-4px) rotate(-1deg); }
+}
+
+.shake {
+animation: shake 0.5s ease-in-out !important;
+}
+
+@keyframes returnCard {
+from {}
+to { transform: translateX(0) translateY(0) rotate(0deg); }
+}
+</style>
+
+</head>
+<body>
+
+<h1>Znajdź swoje dopasowanie</h1>
+
+<div class="card-area">
+  <div class="card" id="card">
+    <!-- PODMIEŃ: zamień div.card-photo-placeholder na: <img class="card-photo" src="twoje_zdjecie.jpg"/> -->
+    <div class="card-photo-placeholder">
+      📸
+      <span>Twoje zdjęcie</span>
+    </div>
+    <div class="card-info">
+      <span class="card-name">Twoje imię</span>
+      <span class="card-age">✨ Idealny/a dla Natalii</span>
+    </div>
+    <div class="stamp stamp-like" id="stampLike">LUBIĘ</div>
+    <div class="stamp stamp-nope" id="stampNope">NOPE</div>
+  </div>
+</div>
+
+<div class="buttons">
+  <button class="btn btn-nope" onclick="tryNope()">✕</button>
+  <button class="btn btn-like" onclick="doLike()">❤️</button>
+</div>
+
+<div class="fight-msg" id="fightMsg"></div>
+
+<!-- MATCH SCREEN -->
+
+<div class="match-screen" id="matchScreen">
+  <div class="match-title">To dopasowanie!</div>
+  <div class="match-sub">Los zdecydował za was</div>
+  <div class="match-photos">
+    <div class="match-photo">📸</div>
+    <div class="match-heart">❤️</div>
+    <div class="match-photo">👩</div>
+  </div>
+  <div class="match-text">
+    Wy dwoje po prostu do siebie pasujecie.<br>
+    Nie ma od tego ucieczki, Natalio. ❤️
+  </div>
+  <button class="match-btn" onclick="closeMatch()">Wiedziałam 💕</button>
+</div>
+
+<div class="confetti-container" id="confetti"></div>
+
+<script>
+const card = document.getElementById('card');
+const stampLike = document.getElementById('stampLike');
+const stampNope = document.getElementById('stampNope');
+const fightMsg = document.getElementById('fightMsg');
+const matchScreen = document.getElementById('matchScreen');
+const confettiContainer = document.getElementById('confetti');
+
+let isDragging = false;
+let startX, startY, currentX = 0, currentY = 0;
+let fightCount = 0;
+
+const fightMessages = [
+  "Ej, nie tak szybko! 😤",
+  "Naprawdę? NAPRAWDĘ?! 🙄",
+  "Nie pozwolę ci na to! ❤️",
+  "Spróbuj jeszcze raz... 😏",
+  "Karta odmawia współpracy!",
+  "Twoje serce mówi co innego 💓",
+  "Ostatnia szansa żeby się rozmyślić...",
+];
+
+// Touch events
+card.addEventListener('touchstart', dragStart, {passive: false});
+document.addEventListener('touchmove', dragMove, {passive: false});
+document.addEventListener('touchend', dragEnd);
+
+// Mouse events
+card.addEventListener('mousedown', dragStart);
+document.addEventListener('mousemove', dragMove);
+document.addEventListener('mouseup', dragEnd);
+
+function dragStart(e) {
+  isDragging = true;
+  const point = e.touches ? e.touches[0] : e;
+  startX = point.clientX;
+  startY = point.clientY;
+  card.style.transition = 'none';
+  if (e.preventDefault) e.preventDefault();
+}
+
+function dragMove(e) {
+  if (!isDragging) return;
+  if (e.preventDefault) e.preventDefault();
+  const point = e.touches ? e.touches[0] : e;
+  currentX = point.clientX - startX;
+  currentY = point.clientY - startY;
+  const rotate = currentX * 0.08;
+
+  card.style.transform = `translateX(${currentX}px) translateY(${currentY}px) rotate(${rotate}deg)`;
+
+  // Stamp visibility
+  if (currentX > 30) {
+    stampLike.style.opacity = Math.min((currentX - 30) / 80, 1);
+    stampNope.style.opacity = 0;
+  } else if (currentX < -30) {
+    stampNope.style.opacity = Math.min((-currentX - 30) / 80, 1);
+    stampLike.style.opacity = 0;
+  } else {
+    stampLike.style.opacity = 0;
+    stampNope.style.opacity = 0;
+  }
+}
+
+function dragEnd() {
+  if (!isDragging) return;
+  isDragging = false;
+  stampLike.style.opacity = 0;
+  stampNope.style.opacity = 0;
+
+  if (currentX > 100) {
+    // SWIPE RIGHT = match!
+    flyOut('right');
+  } else if (currentX < -100) {
+    // SWIPE LEFT = karta walczy!
+    fightBack();
+  } else {
+    // Wróć na miejsce
+    returnToCenter();
+  }
+  currentX = 0;
+  currentY = 0;
+}
+
+function returnToCenter() {
+  card.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+  card.style.transform = 'translateX(0) translateY(0) rotate(0deg)';
+}
+
+function fightBack() {
+  const msg = fightMessages[Math.min(fightCount, fightMessages.length - 1)];
+  fightCount++;
+
+  // Pokaż wiadomość
+  fightMsg.textContent = msg;
+  fightMsg.classList.add('show');
+  setTimeout(() => fightMsg.classList.remove('show'), 1800);
+
+  // Karta trzęsie się i wraca
+  card.style.transition = 'transform 0.15s ease-out';
+  card.style.transform = 'translateX(-80px) rotate(-5deg)';
+
+  setTimeout(() => {
+    card.classList.add('shake');
+    card.style.transition = 'none';
+    setTimeout(() => {
+      card.classList.remove('shake');
+      returnToCenter();
+      // Po kilku próbach — automatyczny match
+      if (fightCount >= 4) {
+        setTimeout(() => {
+          showForcedMatch();
+        }, 800);
+      }
+    }, 500);
+  }, 150);
+}
+
+function showForcedMatch() {
+  fightMsg.textContent = "No dobra, los zdecydował! ❤️";
+  fightMsg.classList.add('show');
+  setTimeout(() => {
+    fightMsg.classList.remove('show');
+    flyOut('right');
+  }, 1200);
+}
+
+function flyOut(direction) {
+  const x = direction === 'right' ? 600 : -600;
+  card.style.transition = 'transform 0.5s ease-in, opacity 0.5s ease-in';
+  card.style.transform = `translateX(${x}px) rotate(${direction === 'right' ? 30 : -30}deg)`;
+  card.style.opacity = '0';
+  setTimeout(() => showMatch(), 500);
+}
+
+function tryNope() {
+  // Przycisk X też walczy
+  fightBack();
+  // Animuj przycisk
+  const btn = document.querySelector('.btn-nope');
+  btn.style.transform = 'scale(0.8)';
+  setTimeout(() => btn.style.transform = '', 200);
+}
+
+function doLike() {
+  flyOut('right');
+}
+
+function showMatch() {
+  matchScreen.classList.add('show');
+  launchConfetti();
+}
+
+function closeMatch() {
+  matchScreen.classList.remove('show');
+}
+
+function launchConfetti() {
+  const emojis = ['❤️','💕','💖','🌹','✨','💗','💓','🥰'];
+  for (let i = 0; i < 40; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.classList.add('conf');
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (1 + Math.random() * 1.5) + 'rem';
+      const dur = 2.5 + Math.random() * 2;
+      el.style.animationDuration = dur + 's';
+      confettiContainer.appendChild(el);
+      setTimeout(() => el.remove(), dur * 1000 + 100);
+    }, i * 80);
+  }
+}
+</script>
+
+</body>
+</html>
